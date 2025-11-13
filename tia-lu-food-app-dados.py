@@ -1,93 +1,219 @@
-class Item:
-    def __init__(self, code, name, description, price, stock):
-        self.code = code
-        self.name = name
-        self.description = description
-        self.price = price
-        self.stock = stock
+#-----------------------------------------------item's functions-------------------------------------------------#
 
-    def update_stock(self, quantity):
-        try:
-            quantity = int(quantity)
-        except ValueError:
-            raise ValueError("Quantity must be a number.")
-        if quantity < 0 and abs(quantity) > self.stock:
-            raise ValueError("Insufficient stock to remove the requested quantity.")
-        else: 
-            self.stock += quantity
+def create_item(code, name, description, price, stock):
+    return {
+        "code":code, 
+        "name":name, 
+        "description": description,
+        "price": price, 
+        "stock": stock
+        }
 
-    def update_name(self):
-        confirm = input(f"You are about to change the name of the product {self.name}\n(Confirm? 1. Yes / 2. No ) ")
-        if confirm == "1":
-            new_name = input("Type the new name: ").strip()
-            self.name = new_name
-            print(f"The name of the item code:{self.code} has changed to {self.name}")
-        else:
-            print("Operation canceled")
-            return
+def update_stock(item, quantity):
+    try:
+        quantity = int(quantity)
+    except ValueError:
+        raise ValueError("Quantity must be a number.")
+    if quantity < 0 and abs(quantity) > item['stock']:
+        raise ValueError("Insufficient stock to remove the requested quantity.")
+    else: 
+        item['stock'] += quantity
+
+def update_name(item):
+    confirm = input(f"You are about to change the name of the product {item['name']}\n(Confirm? 1. Yes / 2. No ) ")
+    if confirm == "1":
+        new_name = input("Type the new name: ").strip()
+        item['name'] = new_name
+        print(f"The name of the item code:{item['code']} has changed to {item['name']}")
+    else:
+        print("Operation canceled")
+        return
+
+def update_description(item):
+    print(f"Current description:\n{item['description']}")
+    new_description = input("Type a new description: ")
+    confirm = input(f"You are about to change the description of the product {item['name']}\n(Confirm? 1. Yes / 2. No ) ")
+    if confirm == "1":
+        item['description'] = new_description
+        print(f"Description of the item {item['name']} has changed")
+    else:
+        print("Operation canceled")
+        return
+
+def update_price(item):
+    print(f"Current price:\n{item['price']}")  
+    new_price = input("Type a new price: ")
+    confirm = input(f"You are about to change the price of the product {item['name']} to R${new_price}\n(Confirm? 1. Yes / 2. No ) ")
+    if confirm == "1":
+        item['price'] = new_price
+        print(f"Price of the item {item['name']} has changed to R${item['price']}")
+    else:
+        print("Operation canceled")
+        return
+
+#-----------------------------------------------order's functions-------------------------------------------------#
+def create_order(code,costumer_data, items_order, status='Pending', payment='Paid'):
+    total = sum(item["price"] * item["quantity"] for item in items_order)
     
-    def update_description(self):
-        print(f"Current description:\n{self.description}")
-        new_description = input("Type a new description: ")
-        confirm = input(f"You are about to change the description of the product {self.name}\n(Confirm? 1. Yes / 2. No ) ")
-        if confirm == "1":
-            self.description = new_description
-            print(f"Description of the item {self.name} has changed")
-        else:
-            print("Operation canceled")
-            return
+    return {
+        "code": code, 
+        "costumer": costumer_data,
+        "items_order": items_order, 
+        "status": status,
+        "payment": payment,
+        "order_total_price": total 
+    }
 
-    def update_price(self):
-        print(f"Current price:\n{self.price}")  
-        new_price = input("Type a new price: ")
-        confirm = input(f"You are about to change the price of the product {self.name} to R${new_price}\n(Confirm? 1. Yes / 2. No ) ")
-        if confirm == "1":
-            self.price = new_price
-            print(f"Price of the item {self.name} has changed to R${self.price}")
-        else:
-            print("Operation canceled")
-            return
+def apply_order_discount(order):
+    current_total = order['order_total_price']
+    if current_total is None or len(order['items_order']) == 0:
+        raise ValueError("It's not possible to apply discount in a empty order.")
+    discount_value = current_total * (10 / 100)
+    order['order_total_price'] = current_total - discount_value
+    return order['order_total_price']
 
-    def __repr__(self):
-        return f"\nItem code: {self.code}\nname: {self.name}\ndescription: {self.description}\nprice: R${self.price}\nstock: {self.stock}\n"
-    
-class Order:
-    def __init__(self, code, costumer, items_order=[], status="Pending", payment="Paid"):
-        self.code = code 
-        self.costumer = costumer
-        self.items_order = items_order
-        self.status = status
-        self.payment = payment
-        self.order_total_price = None
+#-----------------------------------------------Aux functions-------------------------------------------------#
+def get_orders_by_status(status):
+    return [o for o in all_orders if o["status"] == status]
 
-    def total_price(self):
-        return sum(item.price for item in self.items_order)
+#-----------------------------------------------Lists-------------------------------------------------#
+catalog = [
+    {
+        "code": 1,
+        "name": "Hamburguer Clássico",
+        "description": "Pão de brioche, blend de carne 180g, queijo cheddar, alface, tomate e molho especial.",
+        "price": 32.50,
+        "stock": 50
+    },
+    {
+        "code": 2,
+        "name": "Batata Frita Tradicional",
+        "description": "Porção de 200g de batata frita palito, crocante por fora e macia por dentro.",
+        "price": 15.00,
+        "stock": 100
+    },
+    {
+        "code": 3,
+        "name": "Coca-Cola Lata",
+        "description": "Refrigerante Coca-Cola original, 350ml.",
+        "price": 6.00,
+        "stock": 80
+    },
+    {
+        "code": 4,
+        "name": "Hamburguer Veggie",
+        "description": "Pão integral, burger de grão de bico, rúcula, tomate seco e maionese vegana.",
+        "price": 38.00,
+        "stock": 30
+    },
+    {
+        "code": 5,
+        "name": "Milkshake de Chocolate",
+        "description": "Milkshake cremoso de chocolate belga, 400ml.",
+        "price": 22.90,
+        "stock": 40
+    },
+    {
+        "code": 6,
+        "name": "Anéis de Cebola",
+        "description": "Porção de anéis de cebola empanados e fritos.",
+        "price": 18.50,
+        "stock": 60
+    },
+    {
+        "code": 7,
+        "name": "Água Mineral (500ml)",
+        "description": "Água mineral sem gás.",
+        "price": 4.00,
+        "stock": 120
+    }
+    ]
+costumers = [
+    {
+        "code": 1, 
+        "name": "Ana Silva", 
+        "cellphone": "99988-1234"
+    },
+    {
+        "code": 2, 
+        "name": "João Pereira", 
+        "cellphone": "99977-5678"
+    },
+    {
+        "code": 3, 
+        "name": "Mariana Costa", 
+        "cellphone": "99966-9012"
+    },
+    {
+        "code": 4, 
+        "name": "Carlos Lima", 
+        "cellphone": "99955-3456"
+    },
+    {
+        "code": 5, 
+        "name": "Sofia Alves", 
+        "cellphone": "99944-7890"
+    }
+]
+all_orders = [
+    {
+    "code": 1,
+    "costumer": [1, "Ana Silva", "99988-1234"],
+    "items_order": [
+        {"code": 1, "name": "Hamburguer Clássico", "price": 32.50, "quantity": 1}, 
+        {"code": 3, "name": "Coca-Cola Lata", "price": 6.00, "quantity": 1}
+    ],
+    "status": "Pending",
+    "payment": "Paid",
+    "order_total_price": 34.65 
+    },
+    {
+        "code": 2,
+        "costumer": [2, "João Pereira", "99977-5678"],
+        "items_order": [
+            {"code": 1, "name": "Hamburguer Clássico", "price": 32.50, "quantity": 2},
+            {"code": 2, "name": "Batata Frita Tradicional", "price": 15.00, "quantity": 1}
+        ],
+        "status": "Pending",
+        "payment": "Paid",
+        "order_total_price": 80.00
+    },
+    {
+        "code": 3,
+        "costumer": [3, "Mariana Costa", "99966-9012"],
+        "items_order": [
+            {"code": 4, "name": "Hamburguer Veggie", "price": 38.00, "quantity": 1},
+            {"code": 5, "name": "Milkshake de Chocolate", "price": 22.90, "quantity": 1}
+        ],
+        "status": "Pending",
+        "payment": "Paid",
+        "order_total_price": 60.90
+    },
+    {
+        "code": 4,
+        "costumer": [4, "Carlos Lima", "99955-3456"],
+        "items_order": [
+            {"code": 6, "name": "Anéis de Cebola", "price": 18.50, "quantity": 3}
+        ],
+        "status": "Pending",
+        "payment": "Paid",
+        "order_total_price": 55.50
+    },
+    {
+        "code": 5,
+        "costumer": [5, "Sofia Alves", "99944-7890"],
+        "items_order": [
+            {"code": 2, "name": "Batata Frita Tradicional", "price": 15.00, "quantity": 1},
+            {"code": 7, "name": "Água Mineral (500ml)", "price": 4.00, "quantity": 1}
+        ],
+        "status": "Pending",
+        "payment": "Paid",
+        "order_total_price": 19.00
+    }
+    ]
 
-    def apply_discount(self):
-        if not self.items_order:
-            raise ValueError("It's not possible to apply discount in a empty order.")
-        discount_value = self.total_price() * (10 / 100)
-        self.order_total_price = self.total_price() - discount_value
-        return self.order_total_price
+#-----------------------------------------------Menu's functions-------------------------------------------------#
 
-    def finalize(self):
-        if self.order_total_price is None:
-            self.order_total_price = self.total_price()
-        return self.order_total_price
-        
-    def __repr__(self):
-        total = self.order_total_price if self.order_total_price is not None else self.total_price()
-        items_list = ", ".join(item.name for item in self.items_order) if self.items_order else "No items"
-        return (
-            f"\n📦 Order: {self.code}\n"
-            f"👤 Costumer: {self.costumer}\n"
-            f"🛒 Items: {items_list}\n"
-            f"💰 Total: R${total:.2f}\n"
-            f"📌 Status: {self.status}\n"
-        )
-   
-catalog = []
-costumers = []
 def consults(all_orders, costumers):
 
     choice = ""
@@ -111,11 +237,12 @@ def consults(all_orders, costumers):
                 print("\n📋 List of orders:")
                 print("-" * 40)
                 for o in all_orders:
-                    print(f"Code: {o.code}")
-                    print(f"Costumer: {o.costumer}")
-                    print(f"Items: {', '.join([item.name for item in o.items_order])}")
-                    print(f"Status: {o.status}")
-                    print(f"Total: R${o.order_total_price:.2f}")
+                    items_names = [item['name'] for item in o['items_order']]
+                    print(f"📦 Code: {o['code']}")
+                    print(f"👤 Costumer: {o['costumer']}")
+                    print(f"🛒 Items: {', '.join(items_names)}")
+                    print(f"🗃️ Status: {o['status']}")
+                    print(f"💰 Total: R${o['order_total_price']:.2f}")
                     print("-" * 40)
             case "2":
                 print("\n📋 Consult's order by status:")
@@ -137,10 +264,11 @@ def consults(all_orders, costumers):
                         list = get_orders_by_status("Making")
                         if len(list) > 0:
                             for order in list:
-                                print(f"📦 Code: {order.code}")
-                                print(f"👤 Costumer: {order.costumer}")
-                                print(f"🛒 Items: {', '.join([item.name for item in order.items_order])}")
-                                print(f"💰 Price: R${order.order_total_price:.2f}")
+                                items_names = [item['name'] for item in o['items_order']]
+                                print(f"📦 Code: {order['code']}")
+                                print(f"👤 Costumer: {order['costumer']}")
+                                print(f"🛒 Items: {', '.join(items_names)}")
+                                print(f"💰 Price: R${order['order_total_price']:.2f}")
                                 print("-" * 40)
                             print(f"\n📋 Number of registers: {len(list)}")
                         else:
@@ -151,10 +279,11 @@ def consults(all_orders, costumers):
                         list = get_orders_by_status("Ready")
                         if len(list) > 0:
                             for order in list:
-                                print(f"📦 Code: {order.code}")
-                                print(f"👤 Costumer: {order.costumer}")
-                                print(f"🛒 Items: {', '.join([item.name for item in order.items_order])}")
-                                print(f"💰 Price: R${order.order_total_price:.2f}")
+                                items_names = [item['name'] for item in o['items_order']]
+                                print(f"📦 Code: {order['code']}")
+                                print(f"👤 Costumer: {order['costumer']}")
+                                print(f"🛒 Items: {', '.join(items_names)}")
+                                print(f"💰 Price: R${order['order_total_price']:.2f}")
                                 print("-" * 40)
                             print(f"\n📋 Number of registers: {len(list)}")
                         else:
@@ -165,10 +294,11 @@ def consults(all_orders, costumers):
                         list = get_orders_by_status("Waiting Delivery")
                         if len(list) > 0:
                             for order in list:
-                                print(f"📦 Code: {order.code}")
-                                print(f"👤 Costumer: {order.costumer}")
-                                print(f"🛒 Items: {', '.join([item.name for item in order.items_order])}")
-                                print(f"💰 Price: R${order.order_total_price:.2f}")
+                                items_names = [item['name'] for item in o['items_order']]
+                                print(f"📦 Code: {order['code']}")
+                                print(f"👤 Costumer: {order['costumer']}")
+                                print(f"🛒 Items: {', '.join(items_names)}")
+                                print(f"💰 Price: R${order['order_total_price']:.2f}")
                                 print("-" * 40)
                             print(f"\n📋 Number of registers: {len(list)}")
                         else:
@@ -179,10 +309,11 @@ def consults(all_orders, costumers):
                         list = get_orders_by_status("Delivering")
                         if len(list) > 0:
                             for order in list:
-                                print(f"📦 Code: {order.code}")
-                                print(f"👤 Costumer: {order.costumer}")
-                                print(f"🛒 Items: {', '.join([item.name for item in order.items_order])}")
-                                print(f"💰 Price: R${order.order_total_price:.2f}")
+                                items_names = [item['name'] for item in o['items_order']]
+                                print(f"📦 Code: {order['code']}")
+                                print(f"👤 Costumer: {order['costumer']}")
+                                print(f"🛒 Items: {', '.join(items_names)}")
+                                print(f"💰 Price: R${order['order_total_price']:.2f}")
                                 print("-" * 40)
                             print(f"\n📋 Number of registers: {len(list)}")
                         else:
@@ -193,10 +324,11 @@ def consults(all_orders, costumers):
                         list = get_orders_by_status("Delivered")
                         if len(list) > 0:
                             for order in list:
-                                print(f"📦 Code: {order.code}")
-                                print(f"👤 Costumer: {order.costumer}")
-                                print(f"🛒 Items: {', '.join([item.name for item in order.items_order])}")
-                                print(f"💰 Price: R${order.order_total_price:.2f}")
+                                items_names = [item['name'] for item in o['items_order']]
+                                print(f"📦 Code: {order['code']}")
+                                print(f"👤 Costumer: {order['costumer']}")
+                                print(f"🛒 Items: {', '.join(items_names)}")
+                                print(f"💰 Price: R${order['order_total_price']:.2f}")
                                 print("-" * 40)
                             print(f"\n📋 Number of registers: {len(list)}")
                         else:
@@ -207,10 +339,11 @@ def consults(all_orders, costumers):
                         list = get_orders_by_status("Canceled")
                         if len(list) > 0:
                             for order in list:
-                                print(f"📦 Code: {order.code}")
-                                print(f"👤 Costumer: {order.costumer}")
-                                print(f"🛒 Items: {', '.join([item.name for item in order.items_order])}")
-                                print(f"💰 Price: R${order.order_total_price:.2f}")
+                                items_names = [item['name'] for item in o['items_order']]
+                                print(f"📦 Code: {order['code']}")
+                                print(f"👤 Costumer: {order['costumer']}")
+                                print(f"🛒 Items: {', '.join(items_names)}")
+                                print(f"💰 Price: R${order['order_total_price']:.2f}")
                                 print("-" * 40)
                             print(f"\n📋 Number of registers: {len(list)}")
                         else:
@@ -221,10 +354,11 @@ def consults(all_orders, costumers):
                         list = get_orders_by_status("Rejected")
                         if len(list) > 0:
                             for order in list:
-                                print(f"📦 Code: {order.code}")
-                                print(f"👤 Costumer: {order.costumer}")
-                                print(f"🛒 Items: {', '.join([item.name for item in order.items_order])}")
-                                print(f"💰 Price: R${order.order_total_price:.2f}")
+                                items_names = [item['name'] for item in o['items_order']]
+                                print(f"📦 Code: {order['code']}")
+                                print(f"👤 Costumer: {order['costumer']}")
+                                print(f"🛒 Items: {', '.join(items_names)}")
+                                print(f"💰 Price: R${order['order_total_price']:.2f}")
                                 print("-" * 40)
                             print(f"\n📋 Number of registers: {len(list)}")
                         else:
@@ -247,7 +381,7 @@ def consults(all_orders, costumers):
                         total_price = 0
                         acc_price = 0
                         for o in all_orders:
-                            acc_price = o.order_total_price 
+                            acc_price = o['order_total_price'] 
                             total_price = total_price + acc_price   
                         print(f"\n📋 Number of registers: {len(all_orders)}")                    
                         print(f"💰 Total value registered: R${total_price}")
@@ -256,7 +390,7 @@ def consults(all_orders, costumers):
                         acc_price = 0
                         delivered_orders = get_orders_by_status("Delivered")
                         for o in delivered_orders:
-                            acc_price = o.order_total_price 
+                            acc_price = o['order_total_price'] 
                             total_price = total_price + acc_price
                         print(f"\n📋 Number of registers: {len(delivered_orders)}")                    
                         print(f"💰 Total value registered: R${total_price}")                        
@@ -266,9 +400,13 @@ def consults(all_orders, costumers):
                     case _:
                         print("Invalid option. Please try again.".center(width))
             case "4":
+                print("Active costumers:")
                 for c in costumers:
-                    print("Active costumers:")
-                    print(c)
+                    print("-" * 30)
+                    print(f"Code: {c['code']}")
+                    print(f"Name: {c['name']}")
+                    print(f"Cellphone: {c['cellphone']}")
+                    print("-" * 30)
             case "5":
                 print("🔙Returning to Main Menu.".center(width))
                 return
@@ -308,15 +446,16 @@ def manage_menu_items(catalog):
                     except ValueError:
                         print("Price must be a positive number")
                 stock = int(input("How many items will be add:\n"))
-                new_item = Item(code, name, description, price, stock)
+                new_item = create_item(code, name, description, price, stock)
                 catalog.append(new_item)
                 print('Item added with sucess')
 
             case "2":
                 width = 60
-                item = input("Type the name of the item:\n".center(width))                
-                for i in catalog:
-                    if i.name == item:
+                item_name_to_update = input("Type the name of the item:\n".center(width)) 
+                item_to_update = next((i for i in catalog if i["name"] == item_name_to_update), None)               
+                if item_to_update:
+                        i = item_to_update
                         update_type = ""
                         while update_type != "5":
                             print("=" * width)
@@ -332,18 +471,17 @@ def manage_menu_items(catalog):
                         
                             match update_type:
                                 case "1":
-                                    i.update_name()
+                                    update_name(i)
                                 case "2":
-                                    i.update_description()
+                                    update_description(i)
                                 case "3":
-                                    i.update_price()
+                                    update_price(i)
                                 case "4":
-                                    print(f"The item {i.name} has {i.stock} units in stock.".center(width))
+                                    print(f"The item {i['name']} has {i['stock']} units in stock.".center(width))
                                     quantity = input("Type the new quantity you want to add or take from stock:\nUse a minus sign (-) to decrease stock\n".center(width))
                                     try:
-                                        quantity = quantity.strip()
-                                        i.update_stock(quantity)
-                                        print(f"Stock updated. New stock for {i.name}: {i.stock}".center(width))
+                                        update_stock(i, quantity)
+                                        print(f"Stock updated. New stock for {i['name']}: {i['stock']}".center(width))
                                     except ValueError as e:
                                         print(e)
                                 case "5":
@@ -364,11 +502,11 @@ def manage_menu_items(catalog):
                 print("=" * width)
 
                 for item in catalog:
-                    print(f"📦 Code: {item.code}".center(width))
-                    print(f"📝 Name: {item.name}".center(width))
-                    print(f"🖊️ Description: {item.description}".center(width))
-                    print(f"💰 Price: R${item.price}".center(width))
-                    print(f"📦 Stock: {item.stock}".center(width))
+                    print(f"📦 Code: {item['code']}".center(width))
+                    print(f"📝 Name: {item['name']}".center(width))
+                    print(f"🖊️ Description: {item['description']}".center(width))
+                    print(f"💰 Price: R${item['price']}".center(width))
+                    print(f"📦 Stock: {item['stock']}".center(width))
                     print("-" * width)
                     
             case "4":
@@ -380,11 +518,6 @@ def manage_menu_items(catalog):
                 width = 60
                 print("❌ Invalid option. Please try again.".center(width))
 
-# manage orders atualizado  #############################################################################
-all_orders = []
-
-def get_orders_by_status(status):
-    return [o for o in all_orders if o.status == status]
 
 def manage_orders(all_orders, catalog):
     choice = ""
@@ -409,13 +542,15 @@ def manage_orders(all_orders, catalog):
                 name_costumer = input("What is the name of the costumer? ")
                 number_costumer = input("What is the cellphone number of the costumer? ")
                 code_costumer = len(costumers) +1
-                costumer = [code_costumer, name_costumer, number_costumer]
+                new_costumer = {
+                    "code": code_costumer,
+                    "name": name_costumer,
+                    "cellphone": number_costumer
+                }
 
                 code = len(all_orders) + 1
                 items_order = []
-                status = "" 
                 payment = 'Paid'
-                order = Order(code, costumer, items_order, status, payment)
                 choice = ""
                 while choice != "3":
                     print('1. Insert a new item')
@@ -432,62 +567,81 @@ def manage_orders(all_orders, catalog):
                             print("\n📋 Menu list of items:")
                             print("-" * 40)
                             for item in catalog:
-                                print(f"📦 Code: {item.code}")
-                                print(f"📝 Name: {item.name}")
-                                print(f"🖊️ Description: {item.description}")
-                                print(f"💰 Price: R${item.price:.2f}")
-                                print(f"📦 Stock: {item.stock}")
+                                print(f"📦 Code: {item['code']}")
+                                print(f"📝 Name: {item['name']}")
+                                print(f"🖊️ Description: {item['description']}")
+                                print(f"💰 Price: R${item['price']:.2f}")
+                                print(f"📦 Stock: {item['stock']}")
                                 print("-" * 40)
-                            catalog_code = int(input('Choose a item by code: '))
-                            found = False
+                            catalog_code = None
+                            while catalog_code is None:
+                                user_input = input('Choose a item by code: ').strip()
+                                
+                                if not user_input:
+                                    print("⚠️ Entrada vazia. Por favor, digite o código do item.")
+                                    continue
+                                
+                                try:
+                                    catalog_code = int(user_input)
+                                except ValueError:
+                                    print("❌ Entrada inválida. Por favor, digite um número inteiro.")
+                                    catalog_code = None
+                                    continue
+                            found_item = next((item for item in catalog if item["code"] == catalog_code), None)
 
-                            for item in catalog:
-                                if item.code ==catalog_code:
-                                    found = True
-                                    if item.stock > 0:
-                                        print(f"\nItem {catalog_code} added with success")
-                                        items_order.append(item)
-                                        print(f"\n{costumer}'s order items are: {[i.name for i in items_order]}")
-                                        item.update_stock(-1)
-                                        print(f"The current stock for this item is: {item.stock}")
-                                    else:
-                                        print("Stock insuficiente")
-                                        print(f"The current stock for this item is: {item.stock}\n")
-                                        break
-                                if not found:
-                                    print("Item not found")
+                            if found_item:
+                                if found_item['stock'] > 0:
+                                    print(f"\nItem {catalog_code} added with success")
+                                    item_for_order = found_item.copy()
+                                    item_for_order['quantity'] = 1
+                                    items_order.append(item_for_order)
+                                    print(f"\n{name_costumer}'s order items are: {[i['name'] for i in items_order]}")
+                                    update_stock(found_item, -1)
+                                    print(f"The current stock for this item is: {found_item['stock']}")
+                                else:
+                                    print("Stock insuficiente")
+                                    print(f"The current stock for this item is: {found_item['stock']}\n")
+                                    break
+                            if not found_item:
+                                print("Item not found")
                             
                         case "2":
                             if len(items_order) == 0:
                                 print("Order must have at least one item!")
                                 continue
 
-                            print(f"The current value of the order is: R${order.total_price():.2f}")
+                            order = create_order(
+                                code = code, 
+                                costumer_data = new_costumer, 
+                                items_order = items_order, 
+                                status = "Pending", 
+                                payment = payment
+                            )
+
+                            print(f"The current value of the order is: R${order['order_total_price']:.2f}")
 
                             discount_choice = input("Would you like to apply a discount coupon of 10%? (1. Yes / 2. No): ")
 
                             match discount_choice:
                                 case "1":
-                                    order.apply_discount() 
-                                    print(f"\nCoupon applied successfully. New total: R${order.order_total_price:.2f}")
-                                case "2":
-                                    order.finalize()  
-                                    print(f"\nNo discount applied. Total: R${order.order_total_price:.2f}")
+                                    apply_order_discount(order) 
+                                    print(f"\nCoupon applied successfully. New total: R${order['order_total_price']:.2f}")
+                                case "2": 
+                                    print(f"\nNo discount applied. Total: R${order['order_total_price']:.2f}")
                                 case _:
                                     print("Invalid option. Proceeding without discount.")
-                                    order.finalize()
 
-                            order.status = "Pending"
+                            order['status'] = "Pending"
                             all_orders.append(order)
-                            costumers.append(costumer)
+                            costumers.append(new_costumer)
 
                             print("\n✅ Order added with sucess!")
                             print("-" * 40)
-                            print(f"Code: {order.code}")
-                            print(f"Costumer: {order.costumer}")
-                            print(f"Items: {', '.join([item.name for item in order.items_order])}")
-                            print(f"Status: {order.status}")
-                            print(f"Total: R${order.order_total_price:.2f}")
+                            print(f"Code: {order['code']}")
+                            print(f"Costumer: {order['costumer']}")
+                            print(f"Items: {', '.join([item['name'] for item in order['items_order']])}")
+                            print(f"Status: {order['status']}")
+                            print(f"Total: R${order['order_total_price']:.2f}")
                             print("-" * 40)
                             print("\nReturning to manage orders.\n")
                             break 
@@ -510,7 +664,14 @@ def manage_orders(all_orders, catalog):
                 print("=" * width)
                 print("📦 Pending Order".center(width))
                 print("=" * width)
-                print(str(order).center(width))
+                items_names = [item['name'] for item in order['items_order']]
+                items_display = ', '.join(items_names)
+                print(f"Code: {order['code']}")
+                print(f"Costumer: {order['costumer']}")
+                print(f"Items: {items_display}")
+                print(f"Total: R${order['order_total_price']:.2f}")
+                print(f"Status: {order['status']}")
+                print("=" * width)
 
                 print("[1] Accept order".center(width))
                 print("[2] Reject order".center(width))
@@ -518,12 +679,14 @@ def manage_orders(all_orders, catalog):
                 choice = input("Choose an option (1 / 2 / 3):".center(width))
 
                 if choice == "1":
-                    order.status = "Accepted"
+                    order['status'] = "Accepted"
                     print("✅ Order accepted with success!".center(width))
                 elif choice == "2":
-                    order.status = "Rejected"
-                    for item in order: 
-                        item.update_stock(+1)
+                    order['status'] = "Rejected"
+                    for item in order['items_order']: 
+                        original_item = next((i for i in catalog if i["name"] == item["name"]), None)
+                        if original_item:
+                            update_stock(original_item, item["quantity"])
                     print("❌ Order rejected.".center(width))
                 elif choice == "3":
                     print("🔙 Returning to Manage Orders...".center(width))
@@ -540,7 +703,7 @@ def manage_orders(all_orders, catalog):
                 print("=" * width)
 
                 for idx, order in enumerate(all_orders, start=1):
-                    print(f"{idx}. Code: {order.code} | Costumer: {order.costumer} | Status: {order.status}".center(width))
+                    print(f"{idx}. Code: {order['code']} | Costumer: {order['costumer']['name']} | Status: {order['status']}".center(width))
 
                 try:
                     order_index = int(input("Select an order by code:".center(width))) - 1
@@ -549,10 +712,23 @@ def manage_orders(all_orders, catalog):
                     print("❌ Invalid selection.".center(width))
                     continue
 
+                print("=" * width)
                 print("📦 Selected Order".center(width))
-                print(str(order).center(width))
+                print("=" * width)
 
+                items_names = [item['name'] for item in order['items_order']]
+                items_display = ', '.join(items_names)
+
+                print(f"Code: {order['code']}")
+                print(f"Costumer: {order['costumer']}")
+                print(f"Items: {items_display}")
+                print(f"Total: R${order['order_total_price']:.2f}")
+                print(f"Status: {order['status']}")
+                print("=" * width)
+
+                print("=" * width)
                 print("🔄 Choose new status:".center(width))
+                print("=" * width)
                 print("[1] Making".center(width))
                 print("[2] Ready".center(width))
                 print("[3] Waiting Delivery".center(width))
@@ -562,11 +738,11 @@ def manage_orders(all_orders, catalog):
                 status_choice = input("Choose an option (1-5):".center(width))
 
                 match status_choice:
-                    case "1": order.status = "Making"
-                    case "2": order.status = "Ready"
-                    case "3": order.status = "Waiting Delivery"
-                    case "4": order.status = "Delivering"
-                    case "5": order.status = "Delivered"
+                    case "1": order['status'] = "Making"
+                    case "2": order['status'] = "Ready"
+                    case "3": order['status'] = "Waiting Delivery"
+                    case "4": order['status'] = "Delivering"
+                    case "5": order['status'] = "Delivered"
                     case _: 
                         print("❌ Invalid option.".center(width))
                         continue
@@ -578,7 +754,7 @@ def manage_orders(all_orders, catalog):
                     print("⚠️ No orders available.".center(width))
                     continue
 
-                cancellable_orders = [o for o in all_orders if o.status in ("Pending", "Accepted")]
+                cancellable_orders = [o for o in all_orders if o['status'] in ("Pending", "Accepted")]
                 if not cancellable_orders:
                     print("⚠️ No cancellable orders available.".center(width))
                     continue
@@ -588,7 +764,7 @@ def manage_orders(all_orders, catalog):
                 print("=" * width)
 
                 for idx, order in enumerate(cancellable_orders, start=1):
-                    print(f"{idx}. Code: {order.code} | Costumer: {order.costumer} | Status: {order.status}".center(width))
+                    print(f"{idx}. Code: {order['code']} | Costumer: {order['costumer']['name']} | Status: {order['status']}".center(width))
 
                 try:
                     order_index = int(input("Select an order by code:".center(width))) - 1
@@ -607,10 +783,12 @@ def manage_orders(all_orders, catalog):
                 cancel_choice = input("Choose an option (1 / 2):".center(width))
                 match cancel_choice:
                     case "1":
-                        order.status = "Canceled"
-                        for item in order.items_order:
-                            item.update_stock(+1)
-                        print(f"✅ Order {order.code} canceled with success!".center(width))
+                        order['status'] = "Canceled"
+                        for item in order['items_order']:
+                            original_item = next((i for i in catalog if i["name"] == item["name"]), None)
+                            if original_item:
+                                update_stock(original_item, item["quantity"])
+                        print(f"✅ Order {order['code']} canceled with success!".center(width))
                     case "2":
                         print("🔙 Returning to Orders Menu...".center(width))
                     case _:
