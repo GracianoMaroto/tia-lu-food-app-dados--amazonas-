@@ -1,3 +1,5 @@
+import json
+
 #-----------------------------------------------item's functions-------------------------------------------------#
 
 def create_item(code, name, description, price, stock):
@@ -76,142 +78,13 @@ def apply_order_discount(order):
 def get_orders_by_status(status):
     return [o for o in all_orders if o["status"] == status]
 
-#-----------------------------------------------Lists-------------------------------------------------#
-catalog = [
-    {
-        "code": 1,
-        "name": "Hamburguer Clássico",
-        "description": "Pão de brioche, blend de carne 180g, queijo cheddar, alface, tomate e molho especial.",
-        "price": 32.50,
-        "stock": 50
-    },
-    {
-        "code": 2,
-        "name": "Batata Frita Tradicional",
-        "description": "Porção de 200g de batata frita palito, crocante por fora e macia por dentro.",
-        "price": 15.00,
-        "stock": 100
-    },
-    {
-        "code": 3,
-        "name": "Coca-Cola Lata",
-        "description": "Refrigerante Coca-Cola original, 350ml.",
-        "price": 6.00,
-        "stock": 80
-    },
-    {
-        "code": 4,
-        "name": "Hamburguer Veggie",
-        "description": "Pão integral, burger de grão de bico, rúcula, tomate seco e maionese vegana.",
-        "price": 38.00,
-        "stock": 30
-    },
-    {
-        "code": 5,
-        "name": "Milkshake de Chocolate",
-        "description": "Milkshake cremoso de chocolate belga, 400ml.",
-        "price": 22.90,
-        "stock": 40
-    },
-    {
-        "code": 6,
-        "name": "Anéis de Cebola",
-        "description": "Porção de anéis de cebola empanados e fritos.",
-        "price": 18.50,
-        "stock": 60
-    },
-    {
-        "code": 7,
-        "name": "Água Mineral (500ml)",
-        "description": "Água mineral sem gás.",
-        "price": 4.00,
-        "stock": 120
-    }
-    ]
-costumers = [
-    {
-        "code": 1, 
-        "name": "Ana Silva", 
-        "cellphone": "99988-1234"
-    },
-    {
-        "code": 2, 
-        "name": "João Pereira", 
-        "cellphone": "99977-5678"
-    },
-    {
-        "code": 3, 
-        "name": "Mariana Costa", 
-        "cellphone": "99966-9012"
-    },
-    {
-        "code": 4, 
-        "name": "Carlos Lima", 
-        "cellphone": "99955-3456"
-    },
-    {
-        "code": 5, 
-        "name": "Sofia Alves", 
-        "cellphone": "99944-7890"
-    }
-]
-all_orders = [
-    {
-    "code": 1,
-    "costumer": [1, "Ana Silva", "99988-1234"],
-    "items_order": [
-        {"code": 1, "name": "Hamburguer Clássico", "price": 32.50, "quantity": 1}, 
-        {"code": 3, "name": "Coca-Cola Lata", "price": 6.00, "quantity": 1}
-    ],
-    "status": "Pending",
-    "payment": "Paid",
-    "order_total_price": 34.65 
-    },
-    {
-        "code": 2,
-        "costumer": [2, "João Pereira", "99977-5678"],
-        "items_order": [
-            {"code": 1, "name": "Hamburguer Clássico", "price": 32.50, "quantity": 2},
-            {"code": 2, "name": "Batata Frita Tradicional", "price": 15.00, "quantity": 1}
-        ],
-        "status": "Pending",
-        "payment": "Paid",
-        "order_total_price": 80.00
-    },
-    {
-        "code": 3,
-        "costumer": [3, "Mariana Costa", "99966-9012"],
-        "items_order": [
-            {"code": 4, "name": "Hamburguer Veggie", "price": 38.00, "quantity": 1},
-            {"code": 5, "name": "Milkshake de Chocolate", "price": 22.90, "quantity": 1}
-        ],
-        "status": "Pending",
-        "payment": "Paid",
-        "order_total_price": 60.90
-    },
-    {
-        "code": 4,
-        "costumer": [4, "Carlos Lima", "99955-3456"],
-        "items_order": [
-            {"code": 6, "name": "Anéis de Cebola", "price": 18.50, "quantity": 3}
-        ],
-        "status": "Pending",
-        "payment": "Paid",
-        "order_total_price": 55.50
-    },
-    {
-        "code": 5,
-        "costumer": [5, "Sofia Alves", "99944-7890"],
-        "items_order": [
-            {"code": 2, "name": "Batata Frita Tradicional", "price": 15.00, "quantity": 1},
-            {"code": 7, "name": "Água Mineral (500ml)", "price": 4.00, "quantity": 1}
-        ],
-        "status": "Pending",
-        "payment": "Paid",
-        "order_total_price": 19.00
-    }
-    ]
+#----------------------------------------------- Data implementation -------------------------------------------------#
+with open('dados.json', 'r', encoding='utf-8') as arq:
+    dados = json.load(arq)
 
+all_orders = dados['all_orders']
+catalog = dados['catalog']
+costumers = dados['costumers']
 #-----------------------------------------------Menu's functions-------------------------------------------------#
 
 def consults(all_orders, costumers):
@@ -703,7 +576,7 @@ def manage_orders(all_orders, catalog):
                 print("=" * width)
 
                 for idx, order in enumerate(all_orders, start=1):
-                    print(f"{idx}. Code: {order['code']} | Costumer: {order['costumer']['name']} | Status: {order['status']}".center(width))
+                    print(f"{idx}. Code: {order['code']} | Costumer: {order['costumer'][1]} | Status: {order['status']}".center(width))
 
                 try:
                     order_index = int(input("Select an order by code:".center(width))) - 1
@@ -764,7 +637,7 @@ def manage_orders(all_orders, catalog):
                 print("=" * width)
 
                 for idx, order in enumerate(cancellable_orders, start=1):
-                    print(f"{idx}. Code: {order['code']} | Costumer: {order['costumer']['name']} | Status: {order['status']}".center(width))
+                    print(f"{idx}. Code: {order['code']} | Costumer: {order['costumer'][1]} | Status: {order['status']}".center(width))
 
                 try:
                     order_index = int(input("Select an order by code:".center(width))) - 1
