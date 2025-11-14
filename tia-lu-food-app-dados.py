@@ -90,6 +90,16 @@ def get_things_sorted(things):
             things[i], things[menor] = things[menor], things[i]
     return things
 
+def save_data():
+    dados = {
+        "all_orders": all_orders,
+        "catalog": catalog,
+        "costumers": costumers
+    } # atualiza os dados do json com os novos dados inseridos a cada ação feita
+    with open("dados.json", "w", encoding="utf-8") as arq:
+        json.dump(dados, arq, indent=4, ensure_ascii=False)
+    # abre o json e insere os dados, como um banco de dados.
+        
 #----------------------------------------------- Data implementation -------------------------------------------------#
 with open('dados.json', 'r', encoding='utf-8') as arq:
     dados = json.load(arq)
@@ -334,6 +344,7 @@ def manage_menu_items(catalog):
                 stock = int(input("How many items will be add:\n"))
                 new_item = create_item(code, name, description, price, stock)
                 catalog.append(new_item)
+                save_data()
                 print('Item added with sucess')
 
             case "2":
@@ -358,15 +369,19 @@ def manage_menu_items(catalog):
                             match update_type:
                                 case "1":
                                     update_name(i)
+                                    save_data()
                                 case "2":
                                     update_description(i)
+                                    save_data()
                                 case "3":
                                     update_price(i)
+                                    save_data()
                                 case "4":
                                     print(f"The item {i['name']} has {i['stock']} units in stock.".center(width))
                                     quantity = input("Type the new quantity you want to add or take from stock:\nUse a minus sign (-) to decrease stock\n".center(width))
                                     try:
                                         update_stock(i, quantity)
+                                        save_data()
                                         print(f"Stock updated. New stock for {i['name']}: {i['stock']}".center(width))
                                     except ValueError as e:
                                         print(e)
@@ -482,6 +497,7 @@ def manage_orders(all_orders, catalog):
                                     items_order.append(item_for_order)
                                     print(f"\n{name_costumer}'s order items are: {[i['name'] for i in items_order]}")
                                     update_stock(found_item, -1)
+                                    save_data()
                                     print(f"The current stock for this item is: {found_item['stock']}")
                                 else:
                                     print("Stock insuficiente")
@@ -519,6 +535,7 @@ def manage_orders(all_orders, catalog):
                             order['status'] = "Pending"
                             all_orders.append(order)
                             costumers.append(new_costumer)
+                            save_data()
 
                             print("\n✅ Order added with sucess!")
                             print("-" * 40)
@@ -565,13 +582,16 @@ def manage_orders(all_orders, catalog):
 
                 if choice == "1":
                     order['status'] = "Accepted"
+                    save_data()
                     print("✅ Order accepted with success!".center(width))
                 elif choice == "2":
                     order['status'] = "Rejected"
+                    save_data()
                     for item in order['items_order']: 
                         original_item = next((i for i in catalog if i["name"] == item["name"]), None)
                         if original_item:
                             update_stock(original_item, item["quantity"])
+                            save_data()
                     print("❌ Order rejected.".center(width))
                 elif choice == "3":
                     print("🔙 Returning to Manage Orders...".center(width))
@@ -588,7 +608,7 @@ def manage_orders(all_orders, catalog):
                 print("=" * width)
 
                 for idx, order in enumerate(all_orders, start=1):
-                    print(f"{idx}. Code: {order['code']} | Costumer: {order['costumer'][1]} | Status: {order['status']}".center(width))
+                    print(f"{idx}. Code: {order['code']} | Costumer: {order['costumer']} | Status: {order['status']}".center(width))
 
                 try:
                     order_index = int(input("Select an order by code:".center(width))) - 1
@@ -631,6 +651,7 @@ def manage_orders(all_orders, catalog):
                     case _: 
                         print("❌ Invalid option.".center(width))
                         continue
+                save_data()
 
                 print("✅ Order updated with success!".center(width))
 
@@ -649,7 +670,7 @@ def manage_orders(all_orders, catalog):
                 print("=" * width)
 
                 for idx, order in enumerate(cancellable_orders, start=1):
-                    print(f"{idx}. Code: {order['code']} | Costumer: {order['costumer'][1]} | Status: {order['status']}".center(width))
+                    print(f"{idx}. Code: {order['code']} | Costumer: {order['costumer']} | Status: {order['status']}".center(width))
 
                 try:
                     order_index = int(input("Select an order by code:".center(width))) - 1
@@ -669,10 +690,12 @@ def manage_orders(all_orders, catalog):
                 match cancel_choice:
                     case "1":
                         order['status'] = "Canceled"
+                        save_data()
                         for item in order['items_order']:
                             original_item = next((i for i in catalog if i["name"] == item["name"]), None)
                             if original_item:
                                 update_stock(original_item, item["quantity"])
+                                save_data()
                         print(f"✅ Order {order['code']} canceled with success!".center(width))
                     case "2":
                         print("🔙 Returning to Orders Menu...".center(width))
