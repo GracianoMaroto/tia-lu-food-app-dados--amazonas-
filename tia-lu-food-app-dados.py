@@ -1,4 +1,106 @@
 import json
+#-----------------------------------------------AVL classes-------------------------------------------------#
+class Node:
+    def __init__(self, key, value):
+        self.key = key       # Ex: item['code']. Usado para comparação.
+        self.value = value   # O dicionário completo do Item/Pedido.
+        self.height = 1      # Altura do nó.
+        self.left = None     # Filho esquerdo.
+        self.right = None    # Filho direito.
+
+class AVLTree:
+    def __init__(self):
+        self.root = None # A raiz da árvore
+
+    def __len__(self):
+        return len(self.inorder_traversal_list(self.root))
+    
+    def _get_height(self, node):
+        if not node:
+            return 0
+        return node.height
+
+    def _get_balance(self, node):
+        if not node:
+            return 0
+        return self._get_height(node.left) - self._get_height(node.right)
+
+    def _update_height(self, node):
+        node.height = 1 + max(self._get_height(node.left), self._get_height(node.right))
+
+    # --- Rotations ---
+    def _rotate_right(self, z):
+        y = z.left
+        T3 = y.right
+        y.right = z
+        z.left = T3
+        self._update_height(z)
+        self._update_height(y)
+        return y
+
+    def _rotate_left(self, z):
+        y = z.right
+        T2 = y.left
+        y.left = z
+        z.right = T2
+        self._update_height(z)
+        self._update_height(y)
+        return y
+
+    # --- Insert ---
+    def insert(self, root, key, value):
+        if not root:
+            return Node(key, value)
+        
+        if key < root.key:
+            root.left = self.insert(root.left, key, value)
+        elif key > root.key:
+            root.right = self.insert(root.right, key, value)
+        else:
+            # Chaves duplicadas (Códigos de item) não permitidas
+            return root 
+
+        self._update_height(root)
+        balance = self._get_balance(root)
+
+        # 4 Casos de Rotação
+        if balance > 1: # Desbalanceamento à esquerda
+            if key < root.left.key: # Esquerda-Esquerda
+                return self._rotate_right(root)
+            else: # Esquerda-Direita
+                root.left = self._rotate_left(root.left)
+                return self._rotate_right(root)
+        
+        if balance < -1: # Desbalanceamento à direita
+            if key > root.right.key: # Direita-Direita
+                return self._rotate_left(root)
+            else: # Direita-Esquerda
+                root.right = self._rotate_right(root.right)
+                return self._rotate_left(root)
+
+        return root
+    
+    # --- Search (O(log n)) ---
+    def search(self, root, key):
+        if root is None or root.key == key:
+            # Retorna o dicionário (o valor) ou None
+            return root.value if root else None
+        
+        if key < root.key:
+            return self.search(root.left, key)
+        else:
+            return self.search(root.right, key)
+
+    # --- Save and show ---
+    def inorder_traversal_list(self, root):
+        """Retorna uma lista de dicionários ordenada pela chave (code)"""
+        result = []
+        if root:
+            result.extend(self.inorder_traversal_list(root.left))
+            result.append(root.value)
+            result.extend(self.inorder_traversal_list(root.right))
+        return result
+
 #-----------------------------------------------item's functions-------------------------------------------------#
 
 def create_item(code, name, description, price, stock):
@@ -43,7 +145,8 @@ def update_description(item):
 
 def update_price(item):
     print(f"Current price:\n{item['price']}")  
-    new_price = input("Type a new price: ")
+    new_price_input = input("Type a new price: ")
+    new_price = float(new_price_input)
     confirm = input(f"You are about to change the price of the product {item['name']} to R${new_price}\n(Confirm? 1. Yes / 2. No ) ")
     if confirm == "1":
         item['price'] = new_price
@@ -75,7 +178,8 @@ def apply_order_discount(order):
 
 #-----------------------------------------------Aux functions-------------------------------------------------#
 def get_orders_by_status(status):
-    return [o for o in all_orders if o["status"] == status]
+    lista_pedidos = orders_tree.inorder_traversal_list(orders_tree.root)
+    return [o for o in lista_pedidos if o["status"] == status]
 
 def get_things_sorted(things):
     n = len(things)
@@ -91,25 +195,49 @@ def get_things_sorted(things):
     return things
 
 def save_data():
+    # Usa o percurso em ordem da AVL para obter os dados em formato de lista (e ordenados)
     dados = {
-        "all_orders": all_orders,
-        "catalog": catalog,
-        "costumers": costumers
-    } # atualiza os dados do json com os novos dados inseridos a cada ação feita
+        "all_orders": orders_tree.inorder_traversal_list(orders_tree.root),
+        "catalog": catalog_tree.inorder_traversal_list(catalog_tree.root),
+        "costumers": costumers # Continua sendo lista
+    } 
     with open("dados.json", "w", encoding="utf-8") as arq:
         json.dump(dados, arq, indent=4, ensure_ascii=False)
-    # abre o json e insere os dados, como um banco de dados.
-        
 #----------------------------------------------- Data implementation -------------------------------------------------#
-with open('dados.json', 'r', encoding='utf-8') as arq:
-    dados = json.load(arq)
+def load_data():
+    global catalog_tree, orders_tree, costumers # Indica que essas variáveis globais serão modificadas
+    
+    try:
+        with open('dados.json', 'r', encoding='utf-8') as arq:
+            dados = json.load(arq)
+    except FileNotFoundError:
+        print("⚠️ Arquivo 'dados.json' não encontrado. Iniciando com dados vazios.")
+        dados = {"all_orders": [], "catalog": [], "costumers": []}
+    except json.JSONDecodeError:
+        print("❌ Erro ao decodificar JSON. Iniciando com dados vazios.")
+        dados = {"all_orders": [], "catalog": [], "costumers": []}
 
-all_orders = dados['all_orders']
-catalog = dados['catalog']
-costumers = dados['costumers']
+    # Carrega Catálogo (Reconstrói a AVL)
+    catalog_tree = AVLTree()
+    for item in dados['catalog']:
+        catalog_tree.root = catalog_tree.insert(catalog_tree.root, item['code'], item)
+    
+    # Carrega Pedidos (Reconstrói a AVL - Usando a mesma chave 'code')
+    orders_tree = AVLTree()
+    for order in dados['all_orders']:
+        orders_tree.root = orders_tree.insert(orders_tree.root, order['code'], order)
+
+    # Carrega Clientes (Continua sendo Lista de Dicionários)
+    costumers = dados['costumers']
+
+    print("✅ Dados carregados e árvores AVL montadas.")
+
+
+catalog_tree = AVLTree()  # Agora é uma árvore AVL
+orders_tree = AVLTree()   # Agora é uma árvore AVL
 #-----------------------------------------------Menu's functions-------------------------------------------------#
 
-def consults(all_orders, costumers):
+def consults(orders_tree, costumers):
 
     choice = ""
     width = 60
@@ -125,13 +253,14 @@ def consults(all_orders, costumers):
 
         match choice:
             case "1":
-                if not all_orders:
+                if not orders_tree:
                     print("⚠️ There's no orders to show.")
                     continue
 
                 print("\n📋 List of orders:")
                 print("-" * 40)
-                for o in get_things_sorted(all_orders.copy()):
+                lista_pedidos = orders_tree.inorder_traversal_list(orders_tree.root)
+                for o in lista_pedidos:
                     items_names = [item['name'] for item in o['items_order']]
                     print(f"📦 Code: {o['code']}")
                     print(f"👤 Costumer: {o['costumer']}")
@@ -284,10 +413,11 @@ def consults(all_orders, costumers):
                     case "1":
                         total_price = 0
                         acc_price = 0
-                        for o in all_orders:
+                        lista_pedidos = orders_tree.inorder_traversal_list(orders_tree.root)
+                        for o in lista_pedidos:
                             acc_price = o['order_total_price'] 
                             total_price = total_price + acc_price   
-                        print(f"\n📋 Number of registers: {len(all_orders)}")                    
+                        print(f"\n📋 Number of registers: {len(orders_tree)}")                    
                         print(f"💰 Total value registered: R${total_price}")
                     case "2":
                         total_price = 0
@@ -309,7 +439,7 @@ def consults(all_orders, costumers):
             case _:
                 print("Invalid option. Please try again.".center(width))
 
-def manage_menu_items(catalog):
+def manage_menu_items(catalog_tree):
     choice = ""
     width = 60
 
@@ -326,7 +456,7 @@ def manage_menu_items(catalog):
 
         match choice:
             case "1":
-                code = len(catalog) + 1
+                code = len(catalog_tree) + 1
                 width = 60
                 print("=" * width)
                 print("➕ Add New Item".center(width))
@@ -343,14 +473,14 @@ def manage_menu_items(catalog):
                         print("Price must be a positive number")
                 stock = int(input("How many items will be add:\n"))
                 new_item = create_item(code, name, description, price, stock)
-                catalog.append(new_item)
+                catalog_tree.root = catalog_tree.insert(catalog_tree.root, new_item['code'], new_item)
                 save_data()
                 print('Item added with sucess')
 
             case "2":
                 width = 60
-                item_name_to_update = input("Type the name of the item:\n".center(width)) 
-                item_to_update = next((i for i in catalog if i["name"] == item_name_to_update), None)               
+                catalog_code = int(input("Type the CODE of the item:\n".center(width))) 
+                item_to_update = catalog_tree.search(catalog_tree.root, catalog_code) # Busca O(log n)               
                 if item_to_update:
                         i = item_to_update
                         update_type = ""
@@ -394,7 +524,7 @@ def manage_menu_items(catalog):
 
             case "3":
                 width = 60
-                if not catalog:
+                if not catalog_tree:
                     print("⚠️ No items on the menu.".center(width))
                     continue
 
@@ -402,7 +532,8 @@ def manage_menu_items(catalog):
                 print("📋 Menu List of Items".center(width))
                 print("=" * width)
 
-                for item in get_things_sorted(catalog.copy()):
+                items_to_display = catalog_tree.inorder_traversal_list(catalog_tree.root)
+                for item in items_to_display:
                     print(f"📦 Code: {item['code']}".center(width))
                     print(f"📝 Name: {item['name']}".center(width))
                     print(f"🖊️ Description: {item['description']}".center(width))
@@ -420,7 +551,7 @@ def manage_menu_items(catalog):
                 print("❌ Invalid option. Please try again.".center(width))
 
 
-def manage_orders(all_orders, catalog):
+def manage_orders(orders_tree, catalog_tree):
     choice = ""
     width = 60
 
@@ -448,7 +579,7 @@ def manage_orders(all_orders, catalog):
                     "cellphone": number_costumer
                 }
 
-                code = len(all_orders) + 1
+                code = len(orders_tree) + 1
                 items_order = []
                 payment = 'Paid'
                 choice = ""
@@ -460,13 +591,14 @@ def manage_orders(all_orders, catalog):
 
                     match choice:
                         case "1":
-                            if catalog == []:
+                            if catalog_tree == []:
                                 print('The menu is empty, please add some items to proceed.')
                                 return
                             
                             print("\n📋 Menu list of items:")
                             print("-" * 40)
-                            for item in catalog:
+                            items_to_display = catalog_tree.inorder_traversal_list(catalog_tree.root)
+                            for item in items_to_display:
                                 print(f"📦 Code: {item['code']}")
                                 print(f"📝 Name: {item['name']}")
                                 print(f"🖊️ Description: {item['description']}")
@@ -487,7 +619,8 @@ def manage_orders(all_orders, catalog):
                                     print("❌ Entrada inválida. Por favor, digite um número inteiro.")
                                     catalog_code = None
                                     continue
-                            found_item = next((item for item in catalog if item["code"] == catalog_code), None)
+                            # Busca do Item (usando a AVL)
+                            found_item = catalog_tree.search(catalog_tree.root, catalog_code)
 
                             if found_item:
                                 if found_item['stock'] > 0:
@@ -533,7 +666,7 @@ def manage_orders(all_orders, catalog):
                                     print("Invalid option. Proceeding without discount.")
 
                             order['status'] = "Pending"
-                            all_orders.append(order)
+                            orders_tree.root = orders_tree.insert(orders_tree.root, order['code'], order)
                             costumers.append(new_costumer)
                             save_data()
 
@@ -588,7 +721,8 @@ def manage_orders(all_orders, catalog):
                     order['status'] = "Rejected"
                     save_data()
                     for item in order['items_order']: 
-                        original_item = next((i for i in catalog if i["name"] == item["name"]), None)
+                        lista_catalogo = catalog_tree.inorder_traversal_list(catalog_tree.root)
+                        original_item = next((i for i in lista_catalogo if i["name"] == item["name"]), None)
                         if original_item:
                             update_stock(original_item, item["quantity"])
                             save_data()
@@ -599,7 +733,7 @@ def manage_orders(all_orders, catalog):
                     print("⚠️ Invalid option.".center(width))
                             
             case "3":
-                if not all_orders:
+                if not orders_tree:
                     print("⚠️ No available orders to update.".center(width))
                     continue
 
@@ -607,12 +741,13 @@ def manage_orders(all_orders, catalog):
                 print("📋 Orders Available".center(width))
                 print("=" * width)
 
-                for idx, order in enumerate(all_orders, start=1):
+                lista_pedidos = orders_tree.inorder_traversal_list(orders_tree.root)
+                for idx, order in enumerate(lista_pedidos, start=1):
                     print(f"{idx}. Code: {order['code']} | Costumer: {order['costumer']['name']} | Status: {order['status']}".center(width))
 
                 try:
                     order_index = int(input("Select an order by code:".center(width))) - 1
-                    order = all_orders[order_index]
+                    order = lista_pedidos[order_index]
                 except (ValueError, IndexError):
                     print("❌ Invalid selection.".center(width))
                     continue
@@ -656,11 +791,12 @@ def manage_orders(all_orders, catalog):
                 print("✅ Order updated with success!".center(width))
 
             case "4":
-                if not all_orders:
+                if not orders_tree:
                     print("⚠️ No orders available.".center(width))
                     continue
 
-                cancellable_orders = [o for o in all_orders if o['status'] in ("Pending", "Accepted")]
+                lista_pedidos = orders_tree.inorder_traversal_list(orders_tree.root)
+                cancellable_orders = [o for o in lista_pedidos if o['status'] in ("Pending", "Accepted")]
                 if not cancellable_orders:
                     print("⚠️ No cancellable orders available.".center(width))
                     continue
@@ -692,7 +828,8 @@ def manage_orders(all_orders, catalog):
                         order['status'] = "Canceled"
                         save_data()
                         for item in order['items_order']:
-                            original_item = next((i for i in catalog if i["name"] == item["name"]), None)
+                            lista_catalogo = catalog_tree.inorder_traversal_list(catalog_tree.root)
+                            original_item = next((i for i in lista_catalogo if i["name"] == item["name"]), None)
                             if original_item:
                                 update_stock(original_item, item["quantity"])
                                 save_data()
@@ -726,15 +863,16 @@ def main_menu():
 
         match choice:
             case "1":
-                manage_menu_items(catalog)
+                manage_menu_items(catalog_tree)
             case "2":
-                manage_orders(all_orders, catalog)
+                manage_orders(orders_tree, catalog_tree)
             case "3":
-                consults(all_orders, costumers)
+                consults(orders_tree, costumers)
             case "4":
                 print("\nExiting the system. Goodbye!\n".center(width))
                 return
             case _:
                 print("Invalid option. Please try again.".center(width))
 
+load_data()
 main_menu()

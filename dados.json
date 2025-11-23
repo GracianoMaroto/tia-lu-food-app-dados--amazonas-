@@ -1,125 +1,6 @@
 {
     "all_orders": [
         {
-            "code": 857,
-            "costumer": {
-                "code": 436,
-                "name": "Ana Silva",
-                "cellphone": "99988-1234"
-            },
-            "items_order": [
-                {
-                    "code": 832,
-                    "name": "Hamburguer Clássico",
-                    "price": 32.5,
-                    "quantity": 1
-                },
-                {
-                    "code": 825,
-                    "name": "Coca-Cola Lata",
-                    "price": 6.0,
-                    "quantity": 1
-                }
-            ],
-            "status": "Making",
-            "payment": "Paid",
-            "order_total_price": 34.65
-        },
-        {
-            "code": 289,
-            "costumer": {
-                "code": 562,
-                "name": "João Pereira",
-                "cellphone": "99977-5678"
-            },
-            "items_order": [
-                {
-                    "code": 832,
-                    "name": "Hamburguer Clássico",
-                    "price": 32.5,
-                    "quantity": 2
-                },
-                {
-                    "code": 245,
-                    "name": "Batata Frita Tradicional",
-                    "price": 15.0,
-                    "quantity": 1
-                }
-            ],
-            "status": "Pending",
-            "payment": "Paid",
-            "order_total_price": 80.0
-        },
-        {
-            "code": 524,
-            "costumer": {
-                "code": 448,
-                "name": "Mariana Costa",
-                "cellphone": "99966-9012"
-            },
-            "items_order": [
-                {
-                    "code": 252,
-                    "name": "Hamburguer Veggie",
-                    "price": 38.0,
-                    "quantity": 1
-                },
-                {
-                    "code": 834,
-                    "name": "Milkshake de Chocolate",
-                    "price": 22.9,
-                    "quantity": 1
-                }
-            ],
-            "status": "Pending",
-            "payment": "Paid",
-            "order_total_price": 60.9
-        },
-        {
-            "code": 922,
-            "costumer": {
-                "code": 157,
-                "name": "Carlos Lima",
-                "cellphone": "99955-3456"
-            },
-            "items_order": [
-                {
-                    "code": 320,
-                    "name": "Anéis de Cebola",
-                    "price": 18.5,
-                    "quantity": 3
-                }
-            ],
-            "status": "Pending",
-            "payment": "Paid",
-            "order_total_price": 55.5
-        },
-        {
-            "code": 353,
-            "costumer": {
-                "code": 797,
-                "name": "Sofia Alves",
-                "cellphone": "99944-7890"
-            },
-            "items_order": [
-                {
-                    "code": 245,
-                    "name": "Batata Frita Tradicional",
-                    "price": 15.0,
-                    "quantity": 1
-                },
-                {
-                    "code": 533,
-                    "name": "Água Mineral (500ml)",
-                    "price": 4.0,
-                    "quantity": 1
-                }
-            ],
-            "status": "Pending",
-            "payment": "Paid",
-            "order_total_price": 19.0
-        },
-        {
             "code": 6,
             "costumer": {
                 "code": 6,
@@ -160,46 +41,180 @@
                     "quantity": 1
                 }
             ],
-            "status": "Ready",
+            "status": "Delivered",
             "payment": "Paid",
             "order_total_price": 44.46
+        },
+        {
+            "code": 7,
+            "costumer": {
+                "code": 6,
+                "name": "Douglas",
+                "cellphone": "7799998888"
+            },
+            "items_order": [
+                {
+                    "code": 8,
+                    "name": "Trufa",
+                    "description": "Trufa morango, brigadeiro, ninho e limão",
+                    "price": 3,
+                    "stock": 5,
+                    "quantity": 1
+                },
+                {
+                    "code": 834,
+                    "name": "Milkshake de Chocolate",
+                    "description": "Milkshake cremoso de chocolate belga, 400ml.",
+                    "price": 22.9,
+                    "stock": 40,
+                    "quantity": 1
+                }
+            ],
+            "status": "Accepted",
+            "payment": "Paid",
+            "order_total_price": 23.31
+        },
+        {
+            "code": 289,
+            "costumer": {
+                "code": 562,
+                "name": "João Pereira",
+                "cellphone": "99977-5678"
+            },
+            "items_order": [
+                {
+                    "code": 832,
+                    "name": "Hamburguer Clássico",
+                    "price": 32.5,
+                    "quantity": 2
+                },
+                {
+                    "code": 245,
+                    "name": "Batata Frita Tradicional",
+                    "price": 15.0,
+                    "quantity": 1
+                }
+            ],
+            "status": "Rejected",
+            "payment": "Paid",
+            "order_total_price": 80.0
+        },
+        {
+            "code": 353,
+            "costumer": {
+                "code": 797,
+                "name": "Sofia Alves",
+                "cellphone": "99944-7890"
+            },
+            "items_order": [
+                {
+                    "code": 245,
+                    "name": "Batata Frita Tradicional",
+                    "price": 15.0,
+                    "quantity": 1
+                },
+                {
+                    "code": 533,
+                    "name": "Água Mineral (500ml)",
+                    "price": 4.0,
+                    "quantity": 1
+                }
+            ],
+            "status": "Accepted",
+            "payment": "Paid",
+            "order_total_price": 19.0
+        },
+        {
+            "code": 524,
+            "costumer": {
+                "code": 448,
+                "name": "Mariana Costa",
+                "cellphone": "99966-9012"
+            },
+            "items_order": [
+                {
+                    "code": 252,
+                    "name": "Hamburguer Veggie",
+                    "price": 38.0,
+                    "quantity": 1
+                },
+                {
+                    "code": 834,
+                    "name": "Milkshake de Chocolate",
+                    "price": 22.9,
+                    "quantity": 1
+                }
+            ],
+            "status": "Canceled",
+            "payment": "Paid",
+            "order_total_price": 60.9
+        },
+        {
+            "code": 857,
+            "costumer": {
+                "code": 436,
+                "name": "Ana Silva",
+                "cellphone": "99988-1234"
+            },
+            "items_order": [
+                {
+                    "code": 832,
+                    "name": "Hamburguer Clássico",
+                    "price": 32.5,
+                    "quantity": 1
+                },
+                {
+                    "code": 825,
+                    "name": "Coca-Cola Lata",
+                    "price": 6.0,
+                    "quantity": 1
+                }
+            ],
+            "status": "Delivered",
+            "payment": "Paid",
+            "order_total_price": 34.65
+        },
+        {
+            "code": 922,
+            "costumer": {
+                "code": 157,
+                "name": "Carlos Lima",
+                "cellphone": "99955-3456"
+            },
+            "items_order": [
+                {
+                    "code": 320,
+                    "name": "Anéis de Cebola",
+                    "price": 18.5,
+                    "quantity": 3
+                }
+            ],
+            "status": "Accepted",
+            "payment": "Paid",
+            "order_total_price": 55.5
         }
     ],
     "catalog": [
         {
-            "code": 832,
-            "name": "Hamburguer Clássico",
-            "description": "Pão de brioche, blend de carne 180g, queijo cheddar, alface, tomate e molho especial.",
-            "price": 32.5,
-            "stock": 50
+            "code": 8,
+            "name": "Trufa",
+            "description": "Trufa morango, brigadeiro, ninho e limão",
+            "price": 3,
+            "stock": 4
         },
         {
             "code": 245,
             "name": "Batata Frita Tradicional",
             "description": "Porção de 200g de batata frita palito, crocante por fora e macia por dentro.",
             "price": 15.0,
-            "stock": 100
-        },
-        {
-            "code": 825,
-            "name": "Coca-Cola Lata",
-            "description": "Refrigerante Coca-Cola original, 350ml.",
-            "price": 6.0,
-            "stock": 80
+            "stock": 101
         },
         {
             "code": 252,
             "name": "Hamburguer Veggie",
             "description": "Pão integral, burger de grão de bico, rúcula, tomate seco e maionese vegana.",
             "price": 38.0,
-            "stock": 30
-        },
-        {
-            "code": 834,
-            "name": "Milkshake de Chocolate",
-            "description": "Milkshake cremoso de chocolate belga, 400ml.",
-            "price": 22.9,
-            "stock": 40
+            "stock": 31
         },
         {
             "code": 320,
@@ -214,6 +229,27 @@
             "description": "Água mineral sem gás.",
             "price": 4.0,
             "stock": 120
+        },
+        {
+            "code": 825,
+            "name": "Coca-Cola Lata",
+            "description": "Refrigerante Coca-Cola original, 350ml.",
+            "price": 6.0,
+            "stock": 80
+        },
+        {
+            "code": 832,
+            "name": "Hamburguer Clássico",
+            "description": "Pão de brioche, blend de carne 180g, queijo cheddar, alface, tomate e molho especial.",
+            "price": 32.5,
+            "stock": 52
+        },
+        {
+            "code": 834,
+            "name": "Milkshake de Chocolate",
+            "description": "Milkshake cremoso de chocolate belga, 400ml.",
+            "price": 22.9,
+            "stock": 40
         }
     ],
     "costumers": [
@@ -241,6 +277,11 @@
             "code": 797,
             "name": "Sofia Alves",
             "cellphone": "99944-7890"
+        },
+        {
+            "code": 6,
+            "name": "Douglas",
+            "cellphone": "7799998888"
         }
     ]
 }
